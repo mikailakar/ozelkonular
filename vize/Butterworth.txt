@@ -1,0 +1,79 @@
+clear all
+n=4;
+for k=0:n-1
+    D_Re=-sin((2*k+1)*pi/(2*n));
+    D_Im=i*cos((2*k+1)*pi/(2*n));
+    s(k+1)=[D_Re+D_Im];
+end
+for k=1:ceil(n/2)
+    if ( k==(n-k+1) )
+        Hbt(k,:)=real([0 1 s(k)]);
+    else
+        Hbt(k,:)=real(conv([1 -s(k)],[1 -s(n-k+1)]));
+    end
+end
+for l=1:100
+    w(l)=2*l/100;
+    Nw(l)=1;
+    Dw(l)=1;
+    for k=1:ceil(n/2)
+        Nw(l)=abs(Nw(l)*Hbt(k,3));
+        Dw(l)=abs(Dw(l)*(Hbt(k,1)*(i*w(l))^2+Hbt(k,2)*(i*w(l))+Hbt(k,3)));
+        Hw(l)=Nw(l)/Dw(l);
+    end
+end
+
+wl = 180;
+wh = 430;
+wb = 390;
+BW = 61;
+syms Hn(s) Hdn(s)
+Hn(s)=1/1;
+for k=1:ceil(n/2)
+    if(k==(n-k+1))
+        Hn(s)=Hn(s)*(1/(s*Hbt(k,2)+Hbt(k,3)));
+    else
+        Hn(s)=Hn(s)*(1/(s^2*Hbt(k,1)+s*Hbt(k,2)+Hbt(k,3)));
+    end
+end
+
+Hd(s)=Hn(s/wl);
+%Hd(s)=Hn(wh/s);
+%Hd(s)=Hn((s^2+wb^2)/(BW*s));
+factor(Hd)
+
+%Alcak Geciren
+
+clear all
+for k=1:500
+    s(k)=k;
+    Nw(k)=1027621611360000;
+    Dw(k)=(647*(i*s(k))^2+215190*(i*s(k))+20962800)*(1513*(i*s(k))^2+208440*(i*s(k))+49021200);
+    H(k)=Nw(k)/Dw(k);
+end
+Ha=abs(H);
+plot(s,Ha)
+
+%Yuksek Geciren
+
+clear all
+for k=1:1000
+    s(k)=k;
+    Nw(k)=978911*(i*s(k))^4;
+    Dw(k)=(647*(i*s(k))^2+514065*(i*s(k))+119630300)*(1513*(i*s(k))^2+497940*(i*s(k))+279753700);
+    H(k)=Nw(k)/Dw(k);
+end
+Ha=abs(H);
+plot(s,Ha)
+
+%Band Geciren
+
+clear all
+for k=1:800
+    s(k)=k;
+    Nw(k)= 27107692118302*(i*s(k))^4;
+    Dw(k)= (1294*(i*s(k))^4 +145851*(i*s(k))^3 +398449774*(i*s(k))^2 +22183937100*(i*s(k))+29935926540000)*(1513*(i*s(k))^4+70638*(i*s(k))^3+465884473*(i*s(k))^2+10744039800*(i*s(k))+35002362330000);
+    H(k)= Nw(k)/Dw(k);
+end
+Ha=abs(H);
+plot(s,Ha)

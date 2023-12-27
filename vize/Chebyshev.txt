@@ -1,0 +1,80 @@
+clear all
+e_ripple=0.06;
+n=4;
+for k=1:n
+    D_Re=-sin((2*k-1)*pi/(2*n))*sinh(asinh(1/e_ripple)/n);
+    D_Im=i*cos((2*k-1)*pi/(2*n))*cosh(asinh(1/e_ripple)/n);
+    s(k)=[(D_Re+D_Im)];
+end
+for k=1:ceil(n/2)
+    if(k==(n-k+1) )
+        Hch(k,:)=real([0 1 -s(k)]);
+    else
+        Hch(k,:)=real(conv([1 -s(k)],[1 -s(n-k+1)]));
+    end
+end
+for l=1:100
+    w(l)=2*l/100;
+    Nw(l)=1;
+    Dw(l)=1;
+    for k=1:ceil(n/2)
+        Nw(l)=abs(Nw(l)*Hch(k,3) );
+        Dw(l)=abs(Dw(l)*(Hch(k,1)*(i*w(l))^2+Hch(k,2)*(i*w(l))+Hch(k,3)));
+        Hw(l)=Nw(l)/Dw(l);
+    end
+end
+
+wl = 180;
+wh = 430;
+wb = 390;
+BW = 61;
+syms Hn(s) Hdn(s)
+Hn(s)=1/1;
+for k=1:ceil(n/2)
+    if ( k==(n-k+1) )
+        Hn(s)=Hn(s)*( Hch(k,3)/(s*Hch(k,2) + Hch(k,3)));
+    else
+        Hn(s)=Hn(s)*( Hch(k,3)/(s^2* Hch(k,1) + s* Hch(k,2) + Hch(k,3)));
+    end
+end
+
+Hd(s)=Hn(s/wl);
+%Hd(s)=Hn(wh/s);
+%Hd(s)=Hn((s^2+wb^2)/(BW*s));
+factor(Hd)
+
+%Alcak Geciren
+
+clear all
+for k=1:500
+    s(k)=k;
+    Nw(k)=184771972154764800000*pi^2;
+    Dw(k)=(591851*(i*s(k))^2 +195594300*(i*s(k))+6920316000*pi)*(1406353*(i*s(k))^2+61279140*pi*(i*s(k))+26699932800*pi);
+    H(k)=Nw(k)/Dw(k);
+end
+Ha=abs(H);
+plot(s,Ha)
+
+%Yuksek Geciren
+
+clear all
+for k=1:1000
+    s(k)=k;
+    Nw(k)=26402030772*pi^2*(i*s(k))^4;
+    Dw(k)=(21359*pi*(i*s(k))^2+46725305*(i*s(k))+10943324990)*(1236108*pi*(i*s(k))^2+219583585*pi*(i*s(k))+390052004550);
+    H(k)=Nw(k)/Dw(k);
+end
+Ha=abs(H);
+plot(s,Ha)
+
+%Band Geciren
+
+clear all
+for k=1:800
+    s(k)=k;
+    Nw(k)=7311166402924385040*pi^2*(i*s(k))^4;
+    Dw(k)=(591851*(i*s(k))^4+66284735*(i*s(k))^3+794768390*pi*(i*s(k))^2+180041074200*(i*s(k))^2+10081908193500*(i*s(k))+13692123692910000)*(4219059*(i*s(k))^4+62300459*pi*(i*s(k))^3+9199115736*pi*(i*s(k))^2+1283437747800*(i*s(k))^2+9475899813900*pi*(i*s(k))+97605440720190000);
+    H(k)= Nw(k)/Dw(k);
+end
+Ha=abs(H);
+plot(s,Ha)
