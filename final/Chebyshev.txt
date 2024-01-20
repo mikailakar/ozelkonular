@@ -1,0 +1,101 @@
+clear all
+e_ripple=0.06;
+n=4;
+for k=1:n
+    D_Re=-sin((2*k-1)*pi/(2*n))*sinh(asinh(1/e_ripple)/n);
+    D_Im=i*cos((2*k-1)*pi/(2*n))*cosh(asinh(1/e_ripple)/n);
+    s(k)=[(D_Re+D_Im)];
+end
+for k=1:ceil(n/2)
+    if(k==(n-k+1) )
+        Hch(k,:)=real([0 1 -s(k)]);
+    else
+        Hch(k,:)=real(conv([1 -s(k)],[1 -s(n-k+1)]));
+    end
+end
+for l=1:100
+    w(l)=2*l/100;
+    Nw(l)=1;
+    Dw(l)=1;
+    for k=1:ceil(n/2)
+        Nw(l)=abs(Nw(l)*Hch(k,3) );
+        Dw(l)=abs(Dw(l)*(Hch(k,1)*(i*w(l))^2+Hch(k,2)*(i*w(l))+Hch(k,3)));
+        Hw(l)=Nw(l)/Dw(l);
+    end
+end
+
+wl = 180;
+syms Hn(s) Hdn(s)
+Hn(s)=1/1;
+for k=1:ceil(n/2)
+    if ( k==(n-k+1) )
+        Hn(s)=Hn(s)*( Hch(k,3)/(s*Hch(k,2) + Hch(k,3)));
+    else
+        Hn(s)=Hn(s)*( Hch(k,3)/(s^2* Hch(k,1) + s* Hch(k,2) + Hch(k,3)));
+    end
+end
+Hd(s)=Hn(s/wl);
+factor(Hd)
+
+%clear all
+%for k=1:500
+%    s(k)=k;
+%    Nw(k)=184771972154764800000*pi^2;
+%    Dw(k)=(591851*(i*s(k))^2 +195594300*(i*s(k))+6920316000*pi)*(1406353*(i*s(k))^2+61279140*pi*(i*s(k))+26699932800*pi);
+%    H(k)=Nw(k)/Dw(k);
+%end
+%Ha=abs(H);
+%plot(s,Ha)
+
+%S=180/tan(180*(1/90)/2) %=115.58
+syms Ha(z) D(z)
+D(z)=115.58*(z-1)/(z+1);
+Ha(z)=Hd(D(z));
+factor(Ha)
+
+clear all
+for k=1:500
+ w(k)=k;
+ z=exp(i*w(k)*(1/90));
+ Hu(k)=1154824825967280000000000000*pi^2*(z+1)^4;
+ Hb(k)=(46967747530873*z^2+84456439503000*pi*z^2-93935495061746*z+133499664000000*pi*z+46967747530873+49043224497000*pi)*(17300790000000*pi*z^2+76282926727691*z^2-39531907485382*z+34601580000000*pi*z-36751019242309+17300790000000*pi);
+ Hw(k)=Hu(k)/Hb(k);
+end
+plot(w,Hw)
+
+clear all
+w=0;
+Hw=0;
+Hs=0;
+hd=0;
+Whann=0; Wbarhan=0; Wham=0;
+N=10;
+%N=100;
+wc=0.4*pi;
+for k=1:N
+    hd(k)=(wc/pi)*sin(wc*(k-N/2))/(wc*(k-N/2));
+    if(wc*(k-N/2))==0
+        hd(k)=(wc/pi);
+    end
+end
+
+for k=1:N
+    n=k-1;
+   	Whann(k)=0.5*(1-cos(2*pi*(n/(N-1)) ));
+    Wbarhan(k)=0.62-0.48*abs(n/(N-1)-0.5)+0.38*cos(2*pi*(n/(N-1)-0.5));
+	Wham(k)=0.54-0.46*(cos(2*pi*(n/(N-1))));
+	Wblac(k)=0.42-0.5*(cos(2*pi*(n/(N-1))))+0.08*(cos(4*pi*(n/(N-1))));
+end
+%hd=hd.*Whann;
+%hd=hd.*Wbarhan;
+%hd=hd.*Wham;
+%hd=hd.*Wblac;
+
+for j=1:200
+    w(j)=pi*j/200;
+    for k=1:N
+    Hs(k)=exp(-i*k*w(j))*hd(k);
+    end
+    Hw(j)=abs(sum(Hs));
+end
+plot(w,Hw);
