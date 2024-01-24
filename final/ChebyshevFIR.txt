@@ -89,3 +89,5 @@ for j=1:200
     Hw(j)=abs(sum(Hs));
 end
 plot(w,Hw);
+
+%Hw(1:40)'
